@@ -1,0 +1,39 @@
+{
+  "entities": {
+    "Lead": {
+      "title": "Lead",
+      "description": "Information captured from potential clients during a forensic scan.",
+      "type": "object",
+      "properties": {
+        "email": {
+          "type": "string",
+          "format": "email",
+          "description": "User's email address."
+        },
+        "timestamp": {
+          "type": "object",
+          "description": "Firebase server timestamp."
+        },
+        "source": {
+          "type": "string",
+          "description": "Source identifier (e.g., forensic_obsidian_gate)."
+        },
+        "forensic_id": {
+          "type": "string",
+          "description": "Unique identifier for the scan trace."
+        },
+        "userId": {
+          "type": "string",
+          "description": "UID of the anonymous user who submitted it."
+        }
+      },
+      "required": ["email", "timestamp", "source", "forensic_id"]
+    }
+  },
+  "firestore": {
+    "/artifacts/{appId}/public/data/leads/{leadId}": {
+      "schema": "Lead",
+      "description": "Harvested leads stored in a deep subcollection for forensic auditing."
+    }
+  }
+}

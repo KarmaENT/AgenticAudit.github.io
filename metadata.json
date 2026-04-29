@@ -1,0 +1,6 @@
+{
+  "name": "AgenticAudit",
+  "description": "A forensic reliability platform for autonomous AI agents, featuring the Forensic Scanner module with cyclical redundancy detection.",
+  "requestFramePermissions": [],
+  "majorCapabilities": []
+}

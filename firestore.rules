@@ -1,0 +1,48 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // Default deny
+    match /{document=**} {
+      allow read, write: if false;
+    }
+
+    // Helper functions
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    function isOwner(userId) {
+      return isSignedIn() && request.auth.uid == userId;
+    }
+
+    function isValidId(id) {
+      return id is string && id.size() <= 128 && id.matches('^[a-zA-Z0-9_\\-]+$');
+    }
+
+    function incoming() {
+      return request.resource.data;
+    }
+
+    // Lead Validation
+    function isValidLead(data) {
+      return data.keys().hasAll(['email', 'timestamp', 'source', 'forensic_id', 'userId']) 
+        && data.keys().size() == 5
+        && data.email is string && data.email.size() <= 200 && data.email.matches('.+@.+\\..+')
+        && data.timestamp == request.time
+        && data.source == 'forensic_obsidian_gate'
+        && data.forensic_id is string && data.forensic_id.size() <= 128
+        && data.userId == request.auth.uid;
+    }
+
+    // Match for Leads
+    // /artifacts/{appId}/public/data/leads/{leadId}
+    match /artifacts/{appId}/public/data/leads/{leadId} {
+      allow create: if isSignedIn() 
+        && isValidId(appId)
+        && isValidLead(incoming());
+      
+      // Admins or specific verified logic could go here, but for now, only allow create for harvesting.
+      allow read: if false; // Security: Don't allow scraping leads
+    }
+  }
+}
